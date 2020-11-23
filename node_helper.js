@@ -78,14 +78,16 @@ module.exports = NodeHelper.create({
 						let month = h.dueDate.toString().substring(4, 6);
 						let day = h.dueDate.toString().substring(6);
 						let key = year + month + day; 
-						let entries = lessonMap.get(key);
+						let entries = homeworkMap.get(key);
 						if (!entries) {
 							entries = new Map();
 						}
 						entries.set(lessonMap.get(h.lessonId), h.text);
+						console.table(entries);
 						homeworkMap.set(key, entries);
 					});
 				}
+
 				if (responseData[0]) {
 					let timetable = responseData[0];
 					timetable.forEach(element => {

@@ -60,12 +60,16 @@ Module.register("MMM-Webuntis", {
 				let day = new Date(l.year, l.month - 1, l.day);
 				let dayLong = day.toLocaleDateString("de-DE", { weekday: "long" });
 				if (!days.get(dayLong)) {
-					console.log("ADD DAY: " + dayLong);
+					//console.log("ADD DAY: " + dayLong);
 					let daysLessons = [];
-					daysLessons[l.lessonNumber] = l;
+					daysLessons[l.lessonNumber] = [];
+					daysLessons[l.lessonNumber].push(l);
 					days.set(dayLong, daysLessons);
 				} else {
-					days.get(dayLong)[l.lessonNumber] = l;
+					if (!days.get(dayLong)[l.lessonNumber]) {
+						days.get(dayLong)[l.lessonNumber] = [];
+					}
+					days.get(dayLong)[l.lessonNumber].push(l);
 				}
 			});
 
@@ -86,8 +90,11 @@ Module.register("MMM-Webuntis", {
 				var row = document.createElement("tr");
 				let dateTimeCellCreated = false;
 				for (const [key, value] of days.entries()) {
-					var lesson = value[i];
-					if (lesson != undefined) {
+					var lessons = value[i];
+					if (lessons != undefined) {
+
+						var lesson = lessons[0];
+
 						var time = new Date(lesson.year, lesson.month - 1, lesson.day, lesson.hour, lesson.minutes);
 						var passed = time < new Date() && lesson.code != "error";
 						if (!dateTimeCellCreated) {
@@ -102,17 +109,21 @@ Module.register("MMM-Webuntis", {
 
 						// subject cell
 						var subjectCell = document.createElement("td");
-						subjectCell.innerHTML =
-							this.capitalize(lesson.subject) + "&nbsp;(" +
-							this.capitalize(lesson.teacher) + ")";
-						if (lesson.homework) {
-							subjectCell.innerHTML += "<br />";
-							subjectCell.innerHTML += lesson.homework;
-						}
-						subjectCell.className = "leftSpace align-left alignTop";
-						if (lesson.code == "cancelled") { subjectCell.className += " cancelled"; }
-						if (lesson.code == "error") { subjectCell.className += " error"; }
-						if (passed) { subjectCell.className += " passed"; }
+						lessons.forEach(l => {
+							subjectCell.innerHTML +=
+								this.capitalize(l.subject) + "&nbsp;(" +
+								this.capitalize(l.teacher) + ")";
+								var hw = document.createElement("p");
+								hw.className += " homework";
+							if (l.homework) {
+								hw.innerHTML += l.homework;
+							}
+							subjectCell.appendChild(hw);
+							subjectCell.className = "leftSpace align-left alignTop";
+							if (l.code == "cancelled") { subjectCell.className += " cancelled"; }
+							if (l.code == "error") { subjectCell.className += " error"; }
+							if (passed) { subjectCell.className += " passed"; }
+						});
 						row.appendChild(subjectCell);
 					} else {
 						// empty cell

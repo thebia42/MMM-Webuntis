@@ -29,3 +29,8 @@
     rgba(0,0,0,0)
   );
 }
+
+.homework {
+  font-weight: bold;
+  font-style: italic;
+}
